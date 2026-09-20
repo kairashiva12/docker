@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bus Seat Booking | Interactive</title>
+  <!-- Google Fonts for a modern look -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(145deg, #0b1a2e 0%, #1b2f44 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    .bus-booking-container {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 2.5rem;
+      padding: 2rem 2rem 2rem 2rem;
+      box-shadow: 0 25px 50px -8px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      max-width: 950px;
+      width: 100%;
+      transition: all 0.2s ease;
+    }
+
+    h1 {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #fff;
+      font-weight: 600;
+      font-size: 1.9rem;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.25rem;
+    }
+
+    h1 i {
+      color: #5fc3ff;
+      font-size: 2rem;
+      filter: drop-shadow(0 0 8px rgba(95, 195, 255, 0.5));
+    }
+
+    .subhead {
+      color: #a0c0d8;
+      font-size: 0.95rem;
+      font-weight: 400;
+      margin-bottom: 1.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 1rem;
+    }
+
+    .legend {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: #c0d4e8;
+    }
+
+    .legend-box {
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      transition: 0.2s;
+    }
+
+    .legend-box.available {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .legend-box.selected {
+      background: #5fc3ff;
+      border: 1.5px solid #5fc3ff;
+      box-shadow: 0 0 12px #5fc3ffaa;
+    }
+
+    .legend-box.booked {
+      background: #2a3c4e;
+      border: 1.5px solid #1e2c38;
+      opacity: 0.7;
+    }
+
+    .bus-layout {
+      display: flex;
+      flex-direction: row;
+      gap: 2rem;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .seats-section {
+      flex: 2;
+      min-width: 380px;
+    }
+
+    .deck {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 2rem;
+      padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5), 0 10px 20px -5px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .driver-area {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1.2rem;
+      padding-right: 0.5rem;
+    }
+
+    .driver-icon {
+      background: #334b5e;
+      color: #cdddee;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .seat-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .seat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .seat-pair {
+      display: flex;
+      gap: 0.8rem;
+      flex: 1;
+    }
+
+    .seat {
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #d9e9ff;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+      user-select: none;
+      position: relative;
+    }
+
+    .seat i {
+      font-size: 1.2rem;
+      opacity: 0.8;
+      margin-right: 2px;
+    }
+
+    .seat.available:hover {
+      background: rgba(95, 195, 255, 0.25);
+      border-color: #5fc3ff;
+      transform: scale(1.05);
+      box-shadow: 0 0 15px #5fc3ff55;
+    }
+
+    .seat.selected {
+      background: #5fc3ff;
+      border-color: #5fc3ff;
+      color: #0b1a2e;
+      box-shadow: 0 0 18px #5fc3ffcc, 0 4px 8px rgba(0, 0, 0, 0.3);
+      transform: scale(1.02);
+      font-weight: 700;
+    }
+
+    .seat.selected i {
+      color: #0b1a2e;
+      opacity: 1;
+    }
+
+    .seat.booked {
+      background: #202f3c;
+      border-color: #2d4050;
+      color: #5a6f80;
+      cursor: not-allowed;
+      opacity: 0.8;
+      box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .seat.booked i {
+      opacity: 0.4;
+    }
+
+    .empty-space {
+      width: 54px;
+      height: 54px;
+      visibility: hidden;
+    }
+
+    .aisle {
+      display: flex;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: #5d7e97;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin: 0.2rem 0 0.4rem 0;
+    }
+
+    .summary-section {
+      flex: 1;
+      min-width: 240px;
+      background: rgba(12, 22, 34, 0.7);
+      backdrop-filter: blur(8px);
+      border-radius: 2rem;
+      padding: 1.8rem 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.7);
+      color: #e5f0ff;
+    }
+
+    .summary-section h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      border-left: 4px solid #5fc3ff;
+      padding-left: 0.9rem;
+    }
+
+    .summary-section h2 i {
+      color: #5fc3ff;
+      font-size: 1.3rem;
+    }
+
+    .selected-seats-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin: 1.2rem 0 1.5rem 0;
+      min-height: 3rem;
+    }
+
+    .seat-badge {
+      background: #5fc3ff;
+      color: #0b1a2e;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 30px;
+      box-shadow: 0 4px 10px #5fc3ff55;
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      animation: pop 0.2s ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .seat-badge i {
+      font-size: 0.7rem;
+      opacity: 0.9;
+    }
+
+    .no-seats {
+      color: #7b95ab;
+      font-style: italic;
+      font-size: 0.9rem;
+      padding: 0.5rem 0;
+    }
+
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.9rem 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      margin: 1rem 0 1.6rem 0;
+      font-weight: 500;
+    }
+
+    .price-row span:last-child {
+      font-weight: 700;
+      color: #5fc3ff;
+      font-size: 1.3rem;
+    }
+
+    .btn-book {
+      width: 100%;
+      background: #5fc3ff;
+      border: none;
+      color: #0b1a2e;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 1rem;
+      border-radius: 60px;
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.7rem;
+      box-shadow: 0 10px 25px -5px #5fc3ff;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-book:hover {
+      background: #7accff;
+      box-shadow: 0 14px 30px -4px #5fc3ff;
+      transform: translateY(-2px);
+    }
+
+    .btn-book:active {
+      transform: translateY(1px);
+      box-shadow: 0 6px 15px -3px #5fc3ff;
+    }
+
+    .btn-book:disabled {
+      background: #2f4050;
+      color: #6e8ba0;
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1e2f3f;
+      color: #b8e2ff;
+      padding: 0.9rem 2rem;
+      border-radius: 60px;
+      border-left: 5px solid #5fc3ff;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+      font-weight: 500;
+      opacity: 0;
+      transition: 0.25s ease;
+      pointer-events: none;
+      z-index: 999;
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast i {
+      color: #5fc3ff;
+      font-size: 1.2rem;
+    }
+
+    /* small adjustments */
+    @media (max-width: 700px) {
+      .bus-booking-container { padding: 1.5rem; }
+      .seat { width: 44px; height: 44px; font-size: 0.8rem; }
+      .empty-space { width: 44px; height: 44px; }
+      .seats-section { min-width: 280px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bus-booking-container">
+  <h1>
+    <i class="fas fa-bus"></i> 
+    SwiftRide Seating
+  </h1>
+  <div class="subhead">
+    <span><i class="fas fa-map-pin" style="margin-right: 6px;"></i>Route 42 · Downtown → Airport</span>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-box available"></span> Available</div>
+      <div class="legend-item"><span class="legend-box selected"></span> Selected</div>
+      <div class="legend-item"><span class="legend-box booked"></span> Booked</div>
+    </div>
+  </div>
+
+  <div class="bus-layout">
+    <!-- Seat map -->
+    <div class="seats-section">
+      <div class="deck">
+        <div class="driver-area">
+          <div class="driver-icon">
+            <i class="fas fa-user-tie"></i>
+          </div>
+        </div>
+        <div class="seat-grid" id="seatGrid"></div>
+        <div class="aisle">AISLE</div>
+      </div>
+    </div>
+
+    <!-- Booking summary -->
+    <div class="summary-section">
+      <h2><i class="fas fa-receipt"></i> Your Trip</h2>
+      <div style="font-size: 0.9rem; opacity: 0.8; display: flex; gap: 1rem; margin-bottom: 0.5rem;">
+        <span><i class="far fa-calendar-alt"></i> Today</span>
+        <span><i class="far fa-clock"></i> 14:30</span>
+      </div>
+      <div style="margin: 1rem 0 0.5rem 0; font-weight: 500; font-size: 0.95rem;">Selected seats</div>
+      <div class="selected-seats-list" id="selectedSeatsList">
+        <span class="no-seats">Tap a seat to select</span>
+      </div>
+      <div class="price-row">
+        <span><i class="fas fa-tag"></i> Total</span>
+        <span id="totalPrice">$0</span>
+      </div>
+      <button class="btn-book" id="bookBtn" disabled>
+        <i class="fas fa-check-circle"></i> Confirm booking
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast">
+  <i class="fas fa-check-circle"></i>
+  <span id="toastMsg">Seats booked!</span>
+</div>
+
+<script>
+  (function() {
+    // ---------- CONFIG ----------
+    const ROWS = 6;            // number of rows
+    const SEATS_PER_ROW = 4;   // 2 left + 2 right (with aisle)
+    const SEAT_PRICE = 25;     // $ per seat
+    // Pre-booked seats (simulate occupied)
+    const PRE_BOOKED = ['1A', '1B', '2C', '3D', '4B', '5A', '6C', '6D']; 
+    
+    // ---------- STATE ----------
+    let selectedSeats = new Set();  // store seat labels like '1A', '3C'
+    let seatElements = {};          // map seat label -> DOM element
+
+    // ---------- DOM refs ----------
+    const seatGrid = document.getElementById('seatGrid');
+    const selectedSeatsList = document.getElementById('selectedSeatsList');
+    const totalPriceSpan = document.getElementById('totalPrice');
+    const bookBtn = document.getElementById('bookBtn');
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+
+    // ---------- HELPERS ----------
+    // Generate seat label based on row (1-indexed) and column letter (A,B,C,D)
+    function getSeatLabel(row, colLetter) {
+      return `${row}${colLetter}`;
+    }
+
+    // Check if a seat is pre-booked
+    function isPreBooked(label) {
+      return PRE_BOOKED.includes(label);
+    }
+
+    // Format price
+    function formatPrice(amount) {
+      return `$${amount}`;
+    }
+
+    // Show toast message
+    function showToast(message, isSuccess = true) {
+      toastMsg.textContent = message;
+      const icon = toast.querySelector('i');
+      if (isSuccess) {
+        icon.className = 'fas fa-check-circle';
+        icon.style.color = '#5fc3ff';
+      } else {
+        icon.className = 'fas fa-exclamation-circle';
+        icon.style.color = '#ff8a8a';
+      }
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2800);
+    }
+
+    // ---------- RENDER SEAT MAP ----------
+    function buildSeatMap() {
+      seatGrid.innerHTML = '';
+      seatElements = {};
+
+      for (let r = 1; r <= ROWS; r++) {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'seat-row';
+
+        // Left pair: seats A and B
+        const leftPair = document.createElement('div');
+        leftPair.className = 'seat-pair';
+        leftPair.style.justifyContent = 'flex-start';
+
+        ['A', 'B'].forEach(col => {
+          const label = getSeatLabel(r, col);
+          const seat = createSeatElement(label, r, col);
+          leftPair.appendChild(seat);
+          seatElements[label] = seat;
+        });
+
+        // Right pair: seats C and D
+        const rightPair = document.createElement('div');
+        rightPair.className = 'seat-pair';
+        rightPair.style.justifyContent = 'flex-end';
+
+        ['C', 'D'].forEach(col => {
+          const label = getSeatLabel(r, col);
+          const seat = createSeatElement(label, r, col);
+          rightPair.appendChild(seat);
+          seatElements[label] = seat;
+        });
+
+        rowDiv.appendChild(leftPair);
+        rowDiv.appendChild(rightPair);
+        seatGrid.appendChild(rowDiv);
+      }
+
+      // Add an aisle label between rows (visual, after row 2 maybe?) - we already have a static aisle text.
+      // Update UI from state
+      updateUI();
+    }
+
+    // Create a single seat DOM element
+    function createSeatElement(label, row, colLetter) {
+      const seatDiv = document.createElement('div');
+      seatDiv.className = 'seat';
+      seatDiv.dataset.seatLabel = label;
+      
+      // Add seat icon + label (or just label)
+      // For better look, we put the seat number and a small icon.
+      // We'll use a chair icon plus the label.
+      const icon = document.createElement('i');
+      icon.className = 'fas fa-chair';
+      const textSpan = document.createElement('span');
+      textSpan.textContent = label;
+      // optional: make it flex with small gap
+      seatDiv.style.display = 'flex';
+      seatDiv.style.alignItems = 'center';
+      seatDiv.style.justifyContent = 'center';
+      seatDiv.style.gap = '4px';
+      
+      seatDiv.appendChild(icon);
+      seatDiv.appendChild(textSpan);
+
+      // Determine initial status
+      if (isPreBooked(label)) {
+        seatDiv.classList.add('booked');
+      } else {
+        seatDiv.classList.add('available');
+        // Add click listener only for available seats
+        seatDiv.addEventListener('click', () => handleSeatClick(label));
+      }
+
+      return seatDiv;
+    }
+
+    // ---------- HANDLE SEAT CLICK ----------
+    function handleSeatClick(label) {
+      const seatEl = seatElements[label];
+      if (!seatEl) return;
+      
+      // Safety: if booked, ignore
+      if (seatEl.classList.contains('booked')) return;
+      
+      if (selectedSeats.has(label)) {
+        // Deselect
+        selectedSeats.delete(label);
+        seatEl.classList.remove('selected');
+        seatEl.classList.add('available');
+      } else {
+        // Select (but check if it's already available)
+        if (seatEl.classList.contains('available')) {
+          selectedSeats.add(label);
+          seatEl.classList.remove('available');
+          seatEl.classList.add('selected');
+        }
+      }
+      
+      updateUI();
+    }
+
+    // ---------- UPDATE UI (summary, price, button state) ----------
+    function updateUI() {
+      // Update selected seats list
+      if (selectedSeats.size === 0) {
+        selectedSeatsList.innerHTML = '<span class="no-seats">Tap a seat to select</span>';
+      } else {
+        // Sort seats naturally (row then column)
+        const sorted = Array.from(selectedSeats).sort((a, b) => {
+          const rowA = parseInt(a);
+          const rowB = parseInt(b);
+          if (rowA !== rowB) return rowA - rowB;
+          return a.slice(-1).localeCompare(b.slice(-1));
+        });
+        
+        selectedSeatsList.innerHTML = sorted.map(label => 
+          `<span class="seat-badge"><i class="fas fa-chair"></i> ${label}</span>`
+        ).join('');
+      }
+      
+      // Update total price
+      const total = selectedSeats.size * SEAT_PRICE;
+      totalPriceSpan.textContent = formatPrice(total);
+      
+      // Enable/disable book button
+      bookBtn.disabled = selectedSeats.size === 0;
+    }
+
+    // ---------- BOOKING ACTION ----------
+    function handleBooking() {
+      if (selectedSeats.size === 0) return;
+      
+      // Simulate booking: mark selected seats as booked (permanent)
+      selectedSeats.forEach(label => {
+        const seatEl = seatElements[label];
+        if (seatEl) {
+          // Remove available/selected classes, add booked
+          seatEl.classList.remove('available', 'selected');
+          seatEl.classList.add('booked');
+          // Remove event listener by cloning? easier: we can remove all listeners by replacing node (but we have ref)
+          // To prevent further clicks, we can clone the node and replace, but we also need to update seatElements.
+          // Better: remove the click listener by replacing the seat element with a fresh one.
+          // We'll do a simple approach: replace the seat element with a new one that has no listener.
+          const newSeat = document.createElement('div');
+          newSeat.className = 'seat booked';
+          newSeat.dataset.seatLabel = label;
+          newSeat.style.display = 'flex';
+          newSeat.style.alignItems = 'center';
+          newSeat.style.justifyContent = 'center';
+          newSeat.style.gap = '4px';
+          const icon = document.createElement('i');
+          icon.className = 'fas fa-chair';
+          const textSpan = document.createElement('span');
+          textSpan.textContent = label;
+          newSeat.appendChild(icon);
+          newSeat.appendChild(textSpan);
+          
+          // Replace in DOM and update reference
+          seatEl.parentNode.replaceChild(newSeat, seatEl);
+          seatElements[label] = newSeat;
+        }
+      });
+      
+      // Show toast with count
+      const count = selectedSeats.size;
+      showToast(`${count} seat${count > 1 ? 's' : ''} booked successfully!`, true);
+      
+      // Clear selection
+      selectedSeats.clear();
+      
+      // Update UI
+      updateUI();
+      
+      // Optional: reset any remaining selected classes (should be none)
+      // Extra safety: iterate over all seat elements to ensure no selected class remains
+      Object.values(seatElements).forEach(el => {
+        if (el.classList.contains('selected')) {
+          el.classList.remove('selected');
+          if (!el.classList.contains('booked')) {
+            el.classList.add('available');
+          }
+        }
+      });
+    }
+
+    // ---------- INIT ----------
+    function init() {
+      buildSeatMap();
+      
+      // Attach book button listener
+      bookBtn.addEventListener('click', handleBooking);
+      
+      // Pre-select a couple of seats for demonstration? No, let user interact.
+      // But maybe add a small hint toast after load
+      setTimeout(() => {
+        showToast('✨ Tap on available seats to select', true);
+      }, 800);
+    }
+
+    // Start everything
+    init();
+  })();
+</script>
+</body>
+</html>
